@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { criarColchao, ListarColchoes, DeletarColchao, EditarColchao } from "./services/ColchaoService";
+import { criarColchao, ListarColchoes, DeletarColchao, EditarColchao } from "../services/ColchaoService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
+
 
 function Colchoes() {
   const [marca, setMarca] = useState("");
@@ -65,6 +66,7 @@ function Colchoes() {
 
   return (
     <div className="bg-black min-h-screen flex flex-col items-center justify-center p-4 text-white">
+
       <div className="bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Criar Colchão</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -152,9 +154,13 @@ function Colchoes() {
         <h2 className="bg-blue-500 text-white p-4 rounded-t-lg">Lista de Colchões</h2>
         <ul className="bg-gray-800 rounded-b-lg divide-y divide-gray-700">
           {colchoes.map((colchao) => (
-            <li key={colchao.id} className="flex items-center justify-between p-4">
-              <span>{colchao.marca} - {colchao.modelo} - {colchao.preco}</span>
-              <div className="flex gap-2">
+            <li key={colchao.id} className="flex justify-between p-4">
+              <div className="flex flex-col">
+                <span>{colchao.marca}</span>
+                <span>{colchao.modelo}</span>
+                <span>R$ {colchao.preco}</span>
+              </div>
+              <div className="flex gap-4 items-center">
                 <button onClick={() => handleEdit(colchao)} className="text-blue-400 hover:text-blue-600">
                   <FontAwesomeIcon icon={faEdit} />
                 </button>

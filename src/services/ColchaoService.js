@@ -12,13 +12,15 @@ export const criarColchao = async (dadosColchao) => {
 };
 
 export const ListarColchoes = async () => {
-  const response = await fetch(API_URL, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  return response.json();
+  const response = await fetch(API_URL);
+  const dados = await response.json();
+
+  // Verifique se a resposta é um array
+  if (Array.isArray(dados)) {
+    return dados;
+  } else {
+    return [];
+  }
 };
 
 export const DeletarColchao = async (id) => {
