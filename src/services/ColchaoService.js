@@ -14,8 +14,6 @@ export const criarColchao = async (dadosColchao) => {
 export const ListarColchoes = async () => {
   const response = await fetch(API_URL);
   const dados = await response.json();
-
-  // Verifique se a resposta é um array
   if (Array.isArray(dados)) {
     return dados;
   } else {
@@ -42,4 +40,32 @@ export const EditarColchao = async (id, dados) => {
     body: JSON.stringify(dados),
   });
   return response.json();
+};
+
+export const uploadImagem = async (colchaoId, arquivo) => {
+  const formData = new FormData();
+  formData.append("imagem", arquivo);
+
+  const response = await fetch(`${API_URL}/${colchaoId}/imagens`, {
+    method: "POST",
+    body: formData,
+  });
+  return response.json();
+};
+
+export const listarImagens = async (colchaoId) => {
+  const response = await fetch(`${API_URL}/${colchaoId}/imagens`);
+  const dados = await response.json();
+  return dados;
+};
+
+export const deletarImagem = async (colchaoId, imagemId) => {
+  const response = await fetch(`${API_URL}/${colchaoId}/imagens/${imagemId}`, {
+    method: "DELETE",
+  });
+  return response.ok;
+};
+
+export const getImagemUrl = (colchaoId, imagemId) => {
+  return `${API_URL}/${colchaoId}/imagens/${imagemId}`;
 };
