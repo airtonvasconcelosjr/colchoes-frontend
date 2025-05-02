@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { login } from "../services/AuthService";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { toast, ToastContainer } from 'react-toastify';
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ function Login() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,10 +20,15 @@ function Login() {
 
     try {
       const resposta = await login(email, password);
-      console.log("Login realizado com sucesso:", resposta);
+      localStorage.setItem("token", resposta.token);
+      navigate("/colchoes", { state: { loginSuccess: true } });
     } catch (error) {
-      setErro("Email ou senha inválidos");
+      if (!error.response) {
+      } else {
+        setErro("Email ou senha inválidos");
+      }
       console.error("Erro no login:", error);
+      toast.error("Erro no login. Tente novamente.");
     } finally {
       setCarregando(false);
     }
@@ -97,6 +104,7 @@ function Login() {
           </div>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 }
