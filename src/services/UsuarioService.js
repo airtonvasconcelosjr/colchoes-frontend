@@ -12,16 +12,19 @@ export const criarUsuario = async (usuario) => {
 };
 
 export const ListarUsuarios = async () => {
-  const response = await fetch(API_URL);
-  const dados = await response.json();
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) {
+      throw new Error("Erro na resposta do servidor: " + response.status);
+    }
 
-  // Verifique se a resposta é um array
-  if (Array.isArray(dados)) {
-    return dados;
-  } else {
-    return [];  // Retorna um array vazio caso o retorno não seja um array
+    const dados = await response.json();
+    return Array.isArray(dados) ? dados : [];
+  } catch (error) {
+    throw error; // <-- Só lança, quem decide o que fazer é o componente
   }
 };
+
 
 export const DeletarUsuario = async (id) => {
   const response = await fetch(`${API_URL}/${id}`, {
