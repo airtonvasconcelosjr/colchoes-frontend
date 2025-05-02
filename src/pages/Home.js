@@ -1,11 +1,29 @@
 // src/pages/Home.js
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import colchao from "../assets/colchao.jpg";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-function Home() {
+const Home = () => {
+  const location = useLocation();
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+
+  useEffect(() => {
+    if (location.state?.logoutSuccess) {
+      toast.success("Logout realizado com sucesso!");
+
+      localStorage.removeItem("token");
+
+      setIsLoggedIn(false);
+
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white px-4">
+      <ToastContainer />
       <img
         src={colchao}
         alt="Colchão"
@@ -17,21 +35,24 @@ function Home() {
         Conforto e qualidade para o seu sono. Faça login ou crie sua conta para continuar.
       </p>
       <div className="flex gap-4">
-        <Link
-          to="/login"
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Login
-        </Link>
-        <Link
-          to="/usuarios"
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-        >
-          Criar Conta
-        </Link>
+        {isLoggedIn ? (
+          <Link
+            to="/colchoes"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
+            Colchões
+          </Link>
+        ) : (
+          <Link
+            to="/login"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
+            Login
+          </Link>
+        )}
       </div>
     </div>
   );
-}
+};
 
 export default Home;
