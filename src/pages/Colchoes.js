@@ -22,6 +22,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useLocation } from "react-router-dom";
+import ModalDeletar from "../components/ModalDeletar";
 
 function Colchoes() {
   const [marca, setMarca] = useState("");
@@ -59,8 +60,6 @@ function Colchoes() {
         for (const arquivo of arquivosSelecionados) {
           await uploadImagem(colchaoId, arquivo);
         }
-
-        toast.success("Imagens carregadas com sucesso!");
 
         setArquivosSelecionados([]);
         setPreviewImagens([]);
@@ -204,7 +203,7 @@ function Colchoes() {
   }, []);
 
   return (
-    <div className="bg-black min-h-screen flex flex-col items-center p-4 text-white">
+    <div className="bg-black min-h-screen flex flex-col items-center py-4 px-8 text-white">
       <div className="flex justify-end w-full max-w mb-4">
         <button
           onClick={() => {
@@ -218,9 +217,9 @@ function Colchoes() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full px-1 max-w-[1400px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full px-4 max-w">
         {colchoes.map((colchao) => (
-          <div key={colchao.id} className="bg-gray-800 rounded-lg shadow-lg p-4">
+          <div key={colchao.id} className="bg-gray-800 rounded-lg shadow-lg p-4 max-w-[415px]">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">{colchao.marca}</h3>
               <div className="flex gap-2">
@@ -240,7 +239,7 @@ function Colchoes() {
                 </button>
                 <button
                   onClick={() => setModalDeletar({ aberto: true, colchao })}
-                  className="text-red-400 hover:text-red-600"
+                  className="text-red-400 hover:text-red-600 rounded"
                   title="Deletar colchão"
                 >
                   <FontAwesomeIcon icon={faTrash} />
@@ -454,7 +453,7 @@ function Colchoes() {
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
                         <button
                           onClick={() => handleDeletarImagem(modalImagem.colchaoId, imagem.id)}
-                          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full"
+                          className="bg-red-500 hover:bg-red-600 text-white py-2 px-3  rounded-full"
                           title="Remover imagem"
                         >
                           <FontAwesomeIcon icon={faTrash} />
@@ -508,33 +507,11 @@ function Colchoes() {
         </div>
       )}
 
-      {modalDeletar.aberto && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-lg w-full max-w-sm p-6">
-            <h3 className="text-xl font-bold text-white mb-4">Confirmar exclusão</h3>
-            <p className="text-gray-300 mb-6">
-              Tem certeza que deseja excluir o colchão <strong>{modalDeletar.colchao?.marca}, {modalDeletar.colchao?.modelo}</strong>?
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white"
-                onClick={() => setModalDeletar({ aberto: false, colchao: null })}
-              >
-                Cancelar
-              </button>
-              <button
-                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white"
-                onClick={async () => {
-                  await handleDelete(modalDeletar.colchao.id);
-                  setModalDeletar({ aberto: false, colchao: null });
-                }}
-              >
-                Excluir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ModalDeletar
+        modalDeletar={modalDeletar}
+        handleDelete={handleDelete}
+        setModalDeletar={setModalDeletar}
+      />
 
 
       <ToastContainer />
