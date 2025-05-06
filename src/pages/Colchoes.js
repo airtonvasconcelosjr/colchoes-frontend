@@ -1,4 +1,4 @@
-// Colchoes.jsx - Componente completo com suporte a imagens
+// Colchoes.jsx
 import { useState, useEffect } from "react";
 import {
   criarColchao,
@@ -29,11 +29,12 @@ function Colchoes() {
   const [preco, setPreco] = useState("");
   const [colchoes, setColchoes] = useState([]);
   const [colchaoEditando, setColchaoEditando] = useState(null);
-
   const [arquivosSelecionados, setArquivosSelecionados] = useState([]);
   const [previewImagens, setPreviewImagens] = useState([]);
   const [imagensColchao, setImagensColchao] = useState({});
   const [modalImagem, setModalImagem] = useState({ aberto: false, colchaoId: null, imagens: [] });
+  const [modalFormularioAberto, setModalFormularioAberto] = useState(false);
+  const [modalDeletar, setModalDeletar] = useState({ aberto: false, colchao: null });
 
   const location = useLocation();
 
@@ -67,6 +68,7 @@ function Colchoes() {
 
       await listarColchoes();
       limparFormulario();
+      setModalFormularioAberto(false);
     } catch (error) {
       toast.error("Erro ao criar/editar colchão.");
       console.error("Erro ao criar/editar colchão", error);
@@ -110,9 +112,9 @@ function Colchoes() {
     setModelo(colchao.modelo);
     setPreco(colchao.preco);
     setColchaoEditando(colchao);
-
     setArquivosSelecionados([]);
     setPreviewImagens([]);
+    setModalFormularioAberto(true);
   };
 
   const limparFormulario = () => {
@@ -202,195 +204,224 @@ function Colchoes() {
   }, []);
 
   return (
-    <div className="bg-black min-h-screen flex flex-col items-center justify-center p-4 text-white">
-      <div className="bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {colchaoEditando ? "Editar Colchão" : "Criar Colchão"}
-        </h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="relative flex flex-col">
-            <div className="relative z-0">
-              <input
-                type="text"
-                name="marca"
-                id="marca"
-                className="w-full h-14 block leading-5 py-2 px-4 rounded bg-gray-700 border border-gray-500 focus:border-2 focus:border-primary-600 focus:outline-none focus:ring-0 text-white peer"
-                placeholder=" "
-                value={marca}
-                onChange={(e) => setMarca(e.target.value)}
-              />
-              <label
-                htmlFor="marca"
-                className="absolute tracking-[.03125em] text-gray-300 bg-gray-700 duration-300 transform px-1 -translate-y-7 scale-75 top-4 z-10 origin-[0] left-4 peer-focus:left-4 peer-focus:text-primary-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-7"
-              >
-                Marca do colchão
-              </label>
-            </div>
-          </div>
-
-          <div className="relative flex flex-col">
-            <div className="relative z-0">
-              <input
-                type="text"
-                name="modelo"
-                id="modelo"
-                className="w-full h-14 block leading-5 py-2 px-4 rounded bg-gray-700 border border-gray-500 focus:border-2 focus:border-primary-600 focus:outline-none focus:ring-0 text-white peer"
-                placeholder=" "
-                value={modelo}
-                onChange={(e) => setModelo(e.target.value)}
-              />
-              <label
-                htmlFor="modelo"
-                className="absolute tracking-[.03125em] text-gray-300 bg-gray-700 duration-300 transform px-1 -translate-y-7 scale-75 top-4 z-10 origin-[0] left-4 peer-focus:left-4 peer-focus:text-primary-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-7"
-              >
-                Modelo do colchão
-              </label>
-            </div>
-          </div>
-
-          <div className="relative flex flex-col">
-            <div className="relative z-0">
-              <input
-                type="number"
-                name="preco"
-                id="preco"
-                className="w-full h-14 block leading-5 py-2 px-4 rounded bg-gray-700 border border-gray-500 focus:border-2 focus:border-primary-600 focus:outline-none focus:ring-0 text-white peer"
-                placeholder=" "
-                value={preco}
-                onChange={(e) => setPreco(e.target.value)}
-              />
-              <label
-                htmlFor="preco"
-                className="absolute tracking-[.03125em] text-gray-300 bg-gray-700 duration-300 transform px-1 -translate-y-7 scale-75 top-4 z-10 origin-[0] left-4 peer-focus:left-4 peer-focus:text-primary-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-7"
-              >
-                Preço do colchão
-              </label>
-            </div>
-          </div>
-
-          <div className="relative flex flex-col">
-            <label className="mb-2 text-gray-300">Imagens do Colchão</label>
-            <div className="flex items-center justify-center w-full">
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-500 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <FontAwesomeIcon icon={faImages} className="w-8 h-8 mb-3 text-gray-400" />
-                  <p className="mb-2 text-sm text-gray-400">
-                    <span className="font-semibold">Clique para fazer upload</span> ou arraste
-                    imagens
-                  </p>
-                  <p className="text-xs text-gray-400">PNG, JPG ou JPEG</p>
-                </div>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  multiple
-                  onChange={handleFileChange}
-                />
-              </label>
-            </div>
-          </div>
-
-          {previewImagens.length > 0 && (
-            <div className="mt-2">
-              <p className="mb-2 text-gray-300">Imagens selecionadas:</p>
-              <div className="flex flex-wrap gap-2">
-                {previewImagens.map((item, index) => (
-                  <div key={index} className="relative w-20 h-20">
-                    <img
-                      src={item.preview}
-                      alt={`Preview ${index}`}
-                      className="w-full h-full object-cover rounded"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removerArquivoSelecionado(index)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                    >
-                      <FontAwesomeIcon icon={faTimes} className="text-xs" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex-1"
-            >
-              {colchaoEditando ? "Editar Colchão" : "Criar Colchão"}
-            </button>
-            {colchaoEditando && (
-              <button
-                type="button"
-                onClick={limparFormulario}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded flex-1"
-              >
-                Cancelar Edição
-              </button>
-            )}
-          </div>
-        </form>
+    <div className="bg-black min-h-screen flex flex-col items-center p-4 text-white">
+      <div className="flex justify-end w-full max-w mb-4">
+        <button
+          onClick={() => {
+            setModalFormularioAberto(true);
+            limparFormulario();
+          }}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mb-8"
+        >
+          Novo Colchão
+          <FontAwesomeIcon icon={faPlus} className="ml-2" />
+        </button>
       </div>
 
-      {colchoes.length > 0 && (
-        <div className="mt-8 w-full max-w-md">
-          <h2 className="bg-blue-500 text-white p-4 rounded-t-lg">Lista de Colchões</h2>
-          <ul className="bg-gray-800 rounded-b-lg divide-y divide-gray-700">
-            {colchoes.map((colchao) => (
-              <li key={colchao.id} className="flex justify-between p-4">
-                <div className="flex flex-col">
-                  <span className="font-medium">{colchao.marca}</span>
-                  <span>{colchao.modelo}</span>
-                  <span className="text-green-400">R$ {colchao.preco}</span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full px-1 max-w-[1400px]">
+        {colchoes.map((colchao) => (
+          <div key={colchao.id} className="bg-gray-800 rounded-lg shadow-lg p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">{colchao.marca}</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => abrirModalImagens(colchao.id)}
+                  className="text-blue-400 hover:text-blue-600"
+                  title="Gerenciar imagens"
+                >
+                  <FontAwesomeIcon icon={faImage} />
+                </button>
+                <button
+                  onClick={() => handleEdit(colchao)}
+                  className="text-blue-400 hover:text-blue-600"
+                  title="Editar colchão"
+                >
+                  <FontAwesomeIcon icon={faEdit} />
+                </button>
+                <button
+                  onClick={() => setModalDeletar({ aberto: true, colchao })}
+                  className="text-red-400 hover:text-red-600"
+                  title="Deletar colchão"
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
 
-                  {imagensColchao[colchao.id] && imagensColchao[colchao.id].length > 0 && (
-                    <div className="flex mt-2 gap-2">
-                      {imagensColchao[colchao.id].slice(0, 2).map((imagem) => (
-                        <div key={imagem.id} className="w-12 h-12 relative">
-                          <img
-                            src={getImagemUrl(colchao.id, imagem.id)}
-                            alt={imagem.nome}
-                            className="w-full h-full object-cover rounded"
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <span className="text-sm text-gray-400">{colchao.modelo}</span>
+              <p className="text-green-400">R$ {colchao.preco}</p>
+            </div>
+
+            {imagensColchao[colchao.id]?.length > 0 && (
+              <div className="grid grid-cols-2 gap-2">
+                {imagensColchao[colchao.id].slice(0, 2).map((imagem) => (
+                  <img
+                    key={imagem.id}
+                    src={getImagemUrl(colchao.id, imagem.id)}
+                    alt={imagem.nome}
+                    className="w-full h-32 object-cover rounded"
+                  />
+                ))}
+                {imagensColchao[colchao.id].length > 2 && (
+                  <div className="flex items-center justify-center bg-gray-700 rounded">
+                    +{imagensColchao[colchao.id].length - 2}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {modalFormularioAberto && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-lg max-w-md w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-gray-700">
+              <h3 className="text-xl font-bold">
+                {colchaoEditando ? "Editar Colchão" : "Criar Colchão"}
+              </h3>
+              <button onClick={() => {
+                setModalFormularioAberto(false);
+                limparFormulario();
+              }} className="text-gray-400 hover:text-white">
+                <FontAwesomeIcon icon={faTimes} className="text-xl" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="overflow-y-auto p-4 flex-1">
+              <div className="bg-gray-800 rounded-lg p-8 w-full max-w-md">
+                <div className="flex flex-col gap-6">
+                  <div className="relative flex flex-col">
+                    <div className="relative z-0">
+                      <input
+                        type="text"
+                        name="marca"
+                        id="marca"
+                        className="w-full h-14 block leading-5 py-2 px-4 rounded bg-gray-700 border border-gray-500 focus:border-2 focus:border-primary-600 focus:outline-none focus:ring-0 text-white peer"
+                        placeholder=" "
+                        value={marca}
+                        onChange={(e) => setMarca(e.target.value)}
+                      />
+                      <label
+                        htmlFor="marca"
+                        className="absolute tracking-[.03125em] text-gray-300 bg-gray-700 duration-300 transform px-1 -translate-y-7 scale-75 top-4 z-10 origin-[0] left-4 peer-focus:left-4 peer-focus:text-primary-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-7"
+                      >
+                        Marca
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="relative flex flex-col">
+                    <div className="relative z-0">
+                      <input
+                        type="text"
+                        name="modelo"
+                        id="modelo"
+                        className="w-full h-14 block leading-5 py-2 px-4 rounded bg-gray-700 border border-gray-500 focus:border-2 focus:border-primary-600 focus:outline-none focus:ring-0 text-white peer"
+                        placeholder=" "
+                        value={modelo}
+                        onChange={(e) => setModelo(e.target.value)}
+                      />
+                      <label
+                        htmlFor="modelo"
+                        className="absolute tracking-[.03125em] text-gray-300 bg-gray-700 duration-300 transform px-1 -translate-y-7 scale-75 top-4 z-10 origin-[0] left-4 peer-focus:left-4 peer-focus:text-primary-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-7"
+                      >
+                        Modelo
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="relative flex flex-col">
+                    <div className="relative z-0">
+                      <input
+                        type="number"
+                        name="preco"
+                        id="preco"
+                        className="w-full h-14 block leading-5 py-2 px-4 rounded bg-gray-700 border border-gray-500 focus:border-2 focus:border-primary-600 focus:outline-none focus:ring-0 text-white peer"
+                        placeholder=" "
+                        value={preco}
+                        onChange={(e) => setPreco(e.target.value)}
+                      />
+                      <label
+                        htmlFor="preco"
+                        className="absolute tracking-[.03125em] text-gray-300 bg-gray-700 duration-300 transform px-1 -translate-y-7 scale-75 top-4 z-10 origin-[0] left-4 peer-focus:left-4 peer-focus:text-primary-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-7"
+                      >
+                        Preço
+                      </label>
+                    </div>
+                  </div>
+                  {!colchaoEditando && (
+                    <div className="relative flex flex-col">
+                      <label className="mb-2 text-gray-300">Imagens</label>
+                      <div className="flex items-center justify-center w-full">
+                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-500 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600">
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <FontAwesomeIcon icon={faImages} className="w-8 h-8 mb-3 text-gray-400" />
+                            <p className="mb-2 text-sm text-gray-400">
+                              <span className="font-semibold">Clique para fazer upload</span> ou arraste imagens
+                            </p>
+                            <p className="text-xs text-gray-400">PNG, JPG ou JPEG</p>
+                          </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            multiple
+                            onChange={handleFileChange}
                           />
-                        </div>
-                      ))}
-                      {imagensColchao[colchao.id].length > 2 && (
-                        <div className="w-12 h-12 bg-gray-600 rounded flex items-center justify-center text-xs">
-                          +{imagensColchao[colchao.id].length - 2}
-                        </div>
-                      )}
+                        </label>
+                      </div>
                     </div>
                   )}
+
+
+                  {previewImagens.length > 0 && (
+                    <div className="mt-2">
+                      <p className="mb-2 text-gray-300">Imagens selecionadas:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {previewImagens.map((item, index) => (
+                          <div key={index} className="relative w-20 h-20">
+                            <img
+                              src={item.preview}
+                              alt={`Preview ${index}`}
+                              className="w-full h-full object-cover rounded"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removerArquivoSelecionado(index)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                            >
+                              <FontAwesomeIcon icon={faTimes} className="text-xs" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button
+                      type="submit"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex-1"
+                    >
+                      {colchaoEditando ? "Editar Colchão" : "Criar Colchão"}
+                    </button>
+                    {colchaoEditando && (
+                      <button
+                        type="button"
+                        onClick={() => setModalFormularioAberto(false)}
+                        className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded flex-1"
+                      >
+                        Cancelar Edição
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex gap-4 items-center">
-                  <button
-                    onClick={() => abrirModalImagens(colchao.id)}
-                    className="text-blue-400 hover:text-blue-600"
-                    title="Gerenciar imagens"
-                  >
-                    <FontAwesomeIcon icon={faImage} />
-                  </button>
-                  <button
-                    onClick={() => handleEdit(colchao)}
-                    className="text-blue-400 hover:text-blue-600"
-                    title="Editar colchão"
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(colchao.id)}
-                    className="text-red-400 hover:text-red-600"
-                    title="Deletar colchão"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
@@ -399,7 +430,7 @@ function Colchoes() {
           <div className="bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex justify-between items-center p-4 border-b border-gray-700">
               <h3 className="text-xl font-bold">
-                Imagens do Colchão {colchoes.find(c => c.id === modalImagem.colchaoId)?.marca} {colchoes.find(c => c.id === modalImagem.colchaoId)?.modelo}
+                Imagens {colchoes.find(c => c.id === modalImagem.colchaoId)?.marca} {colchoes.find(c => c.id === modalImagem.colchaoId)?.modelo}
               </h3>
               <button onClick={fecharModalImagens} className="text-gray-400 hover:text-white">
                 <FontAwesomeIcon icon={faTimes} className="text-xl" />
@@ -436,7 +467,6 @@ function Colchoes() {
               )}
             </div>
 
-            {/* Opção para adicionar novas imagens no modal */}
             <div className="p-4 border-t border-gray-700">
               <label className="flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded cursor-pointer">
                 <FontAwesomeIcon icon={faPlus} />
@@ -477,6 +507,35 @@ function Colchoes() {
           </div>
         </div>
       )}
+
+      {modalDeletar.aberto && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-lg w-full max-w-sm p-6">
+            <h3 className="text-xl font-bold text-white mb-4">Confirmar exclusão</h3>
+            <p className="text-gray-300 mb-6">
+              Tem certeza que deseja excluir o colchão <strong>{modalDeletar.colchao?.marca}, {modalDeletar.colchao?.modelo}</strong>?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white"
+                onClick={() => setModalDeletar({ aberto: false, colchao: null })}
+              >
+                Cancelar
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white"
+                onClick={async () => {
+                  await handleDelete(modalDeletar.colchao.id);
+                  setModalDeletar({ aberto: false, colchao: null });
+                }}
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       <ToastContainer />
     </div>
